@@ -674,19 +674,34 @@ body.is-dragging { cursor: grabbing !important; }
 @media print {
   /* 用标准 A4 名称而非 px：部分 WebKit 内核（iOS Safari）不识别 px 纸张尺寸 */
   @page { size: A4 portrait; margin: 0; }
-  html, body { width: 794px; height: auto; overflow: visible !important; background: #fff !important; }
+  html, body { width: 794px; height: auto !important; overflow: visible !important; background: #fff !important; }
   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .topbar, .mobile-tabs, .editor-pane, .preview-toolbar, .preview-footnote,
+  .topbar, .mobile-tabs, .editor-pane, .preview-toolbar, .preview-tip, .preview-footnote,
   .measure-host, .toast, .modal-backdrop, .print-hint, .file-input { display: none !important; }
   .app, .workspace, .preview-pane, .preview-scroll { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; background: #fff !important; }
   .paper-stage { width: 794px !important; height: auto !important; margin: 0 !important; zoom: 1 !important; transform: none !important; }
   .page {
-    /* 比屏幕纸张少 11px：WebKit 的可用打印区常略小于 CSS 纸张高度，
-       留一点余量可避免每个页面尾部溢出成一个空白页 */
     width: 794px !important; height: 1112px !important;
     margin: 0 !important; box-shadow: none !important;
-    break-after: page; page-break-after: always;
-    break-inside: avoid; page-break-inside: avoid;
+    overflow: hidden !important;
   }
-  .page:last-child { break-after: auto; page-break-after: auto; }
+  /* 只在非首页之前换页，避免 WebKit 尾页或双重分页产生空白页 */
+  .page + .page {
+    break-before: page;
+    page-break-before: always;
+  }
+  /* iOS Safari 手动调用系统打印时的兜底：解除固定高度，防止底部留白溢出成空白页 */
+  @supports (-webkit-touch-callout: none) {
+    .page {
+      height: auto !important;
+      overflow: visible !important;
+    }
+    .page-inner {
+      position: static !important;
+    }
+    .page-footer {
+      position: static !important;
+      margin-top: 16px;
+    }
+  }
 }

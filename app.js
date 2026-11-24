@@ -921,15 +921,22 @@
     const n = (state.basics.name || '我的简历').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 40);
     return n + '_简历';
   }
+  function isIOSOrMobile() {
+    const ua = navigator.userAgent || '';
+    // 覆盖 iPhone、iPad、开启「请求桌面网站」的 iOS/iPadOS Safari、Android 及窄屏设备
+    const isIOS = /iPad|iPhone|iPod/i.test(ua) ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/i.test(ua);
+    return isIOS || isAndroid || window.innerWidth <= 820;
+  }
   function startPrint(btn) {
     clearTimeout(previewTimer);
     renderPreview();                 // 打印前强制同步最新内容
     closeDropdowns();
-    // iOS / Android 的系统打印对固定 px 的 @page 尺寸支持不一致，
-    // 1123px 的页面略大于实际可打印区时会被拆成「内容页 + 空白页」。
-    // 小屏改走本地生成的 PDF：每页由代码显式 addPage，页数与预览严格一致。
-    if (window.innerWidth <= 820) {
-      exportDownload(btn || $('#exportMain'));
+    // iOS / Android 的系统打印会强制保留物理页边距且忽略 @page margin:0，
+    // 统一走本地生成的 PDF，保证页数与预览严格一致。
+    if (isIOSOrMobile()) {
+      exportDownload($('#exportMain') || btn);
       return;
     }
     toast('在打印窗口选择「另存为 PDF」即可保存', 5000);
