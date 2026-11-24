@@ -672,7 +672,8 @@ body.is-dragging { cursor: grabbing !important; }
    打印：只输出纸张，分页与屏幕完全一致
    ============================================================ */
 @media print {
-  @page { size: 794px 1123px; margin: 0; }
+  /* 用标准 A4 名称而非 px：部分 WebKit 内核（iOS Safari）不识别 px 纸张尺寸 */
+  @page { size: A4 portrait; margin: 0; }
   html, body { width: 794px; height: auto; overflow: visible !important; background: #fff !important; }
   body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .topbar, .mobile-tabs, .editor-pane, .preview-toolbar, .preview-footnote,
@@ -680,7 +681,9 @@ body.is-dragging { cursor: grabbing !important; }
   .app, .workspace, .preview-pane, .preview-scroll { display: block !important; width: auto !important; height: auto !important; overflow: visible !important; padding: 0 !important; margin: 0 !important; background: #fff !important; }
   .paper-stage { width: 794px !important; height: auto !important; margin: 0 !important; zoom: 1 !important; transform: none !important; }
   .page {
-    width: 794px !important; height: 1123px !important;
+    /* 比屏幕纸张少 11px：WebKit 的可用打印区常略小于 CSS 纸张高度，
+       留一点余量可避免每个页面尾部溢出成一个空白页 */
+    width: 794px !important; height: 1112px !important;
     margin: 0 !important; box-shadow: none !important;
     break-after: page; page-break-after: always;
     break-inside: avoid; page-break-inside: avoid;

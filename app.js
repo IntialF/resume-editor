@@ -921,17 +921,24 @@
     const n = (state.basics.name || '我的简历').replace(/[\\/:*?"<>|\s]+/g, '_').slice(0, 40);
     return n + '_简历';
   }
-  function startPrint() {
+  function startPrint(btn) {
     clearTimeout(previewTimer);
     renderPreview();                 // 打印前强制同步最新内容
     closeDropdowns();
+    // iOS / Android 的系统打印对固定 px 的 @page 尺寸支持不一致，
+    // 1123px 的页面略大于实际可打印区时会被拆成「内容页 + 空白页」。
+    // 小屏改走本地生成的 PDF：每页由代码显式 addPage，页数与预览严格一致。
+    if (window.innerWidth <= 820) {
+      exportDownload(btn || $('#exportMain'));
+      return;
+    }
     toast('在打印窗口选择「另存为 PDF」即可保存', 5000);
     setTimeout(() => window.print(), 160);
   }
   function handleAction(action, el) {
     switch (action) {
       case 'close-modal': closeModal(); break;
-      case 'export-print': startPrint(); break;
+      case 'export-print': startPrint(el); break;
       case 'export-help': $('#printHint').hidden = false; break;
       case 'export-download': exportDownload(el); break;
       case 'export-json': {
@@ -957,7 +964,7 @@
         state = normalize({ basics: {}, sections: [], settings });
         ui.collapsed.clear(); closeModal(); fullRefresh(); toast('已清空，可点击「添加模块」重新开始'); break;
       }
-      case 'confirm-print': $('#printHint').hidden = true; startPrint(); break;
+      case 'confirm-print': $('#printHint').hidden = true; startPrint($('#exportMain')); break;
       case 'print-hint-close': $('#printHint').hidden = true; break;
       case 'help': showHelp(); break;
     }
@@ -978,7 +985,7 @@
         <li><b>模块标题</b>：点击模块名即可重命名；「◉」可临时隐藏某个模块。</li>
         <li><b>排版设置</b>：3 套模板、主题色、页边距、字体与页码开关。字号和「行距 / 条目间距 / 模块间距」既可用预设（小 / 标准 / 大、紧凑 / 标准 / 宽松），也可选「自定义」拖滑块或输入精确数值；<b>点回预设按钮即可随时恢复默认值</b>，自定义数值会保留。</li>
         <li><b>分页</b>：右侧是真实 A4 页面（794 × 1123 px），屏幕所见即打印所得。</li>
-        <li><b>导出 PDF</b>：点顶部「一键导出 PDF」直接打开打印窗口，选「另存为 PDF」即可（矢量文字、可选中、离线可用）；右侧 ▾ 里还可「直接下载 PDF 文件」（渲染组件已内置，离线可用）。</li>
+        <li><b>导出 PDF</b>：电脑上点顶部「一键导出 PDF」打开打印窗口，选「另存为 PDF」即可（矢量文字、可选中、离线可用）；右侧 ▾ 里还可「直接下载 PDF 文件」。<b>手机上会自动走直接下载</b>，因为 iOS / Android 的系统打印常把每页拆出一个空白页；渲染组件已内置，离线可用。</li>
         <li><b>数据安全</b>：内容仅保存在本机浏览器（localStorage），不会上传；可用「数据 → 导出简历数据」备份。</li>
       </ul>`);
   }
@@ -1101,7 +1108,7 @@
   $('#modalClose').addEventListener('click', closeModal);
   $('#modalBackdrop').addEventListener('click', (e) => { if (e.target === $('#modalBackdrop')) closeModal(); });
   $('#helpBtn').addEventListener('click', () => handleAction('help'));
-  $('#exportMain').addEventListener('click', startPrint);
+  $('#exportMain').addEventListener('click', () => startPrint($('#exportMain')));
   $('#printHintClose').addEventListener('click', () => handleAction('confirm-print'));
   $('#printHint').addEventListener('click', (e) => {
     if (e.target.id === 'printHint') $('#printHint').hidden = true;
