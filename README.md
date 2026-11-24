@@ -2,6 +2,8 @@
 
 一个纯前端、零构建的网页简历编辑器：可视化填写、实时 A4 预览、精确分页、一键导出 PDF。所有数据只保存在你自己的浏览器里，不上传服务器。
 
+> **在线体验**：[https://intialf.github.io/resume-editor](https://intialf.github.io/resume-editor) —— 无需安装，打开即可使用。
+
 ## 功能
 
 - **可视化编辑**：基本信息、工作经历、项目经历、教育经历、专业技能、荣誉奖项、自定义模块。
@@ -16,7 +18,9 @@
 
 ## 快速开始
 
-直接双击 `index.html` 用浏览器打开即可，无需安装任何依赖，也无需联网。
+**在线使用**：直接打开 [https://intialf.github.io/resume-editor](https://intialf.github.io/resume-editor)，无需安装任何依赖。
+
+**本地使用**：双击 `index.html` 用浏览器打开即可，同样无需安装依赖，也无需联网。
 
 如需通过本地服务访问：
 
@@ -62,7 +66,7 @@ python -m http.server 8080
 
 - 你填写的内容保存在**当前浏览器的 localStorage**（键名 `resume-editor-v1`），不会写入项目文件，也不会发往任何服务器。项目中没有网络请求或数据上报。
 - 换浏览器 / 设备、清理浏览器数据都会导致内容丢失，请用「数据 → 导出简历数据」备份 JSON。
-- localStorage 按域名隔离。部署到 GitHub Pages 后，别人打开页面看到的是内置示例，看不到你本地填写的内容。
+- localStorage 按域名隔离。在线版填写的内容只留在本机浏览器的该域名下，别人打开在线地址看到的是内置示例，看不到你填写的内容；本地 `file://` 打开的编辑器与在线版的数据也互不相通。
 - `app.js` 中的「张明 / 138 0000 0000 / example.com」是**虚构示例数据**，不是任何人的真实信息。
 - 不要把导出的 `.json` / `.pdf` 放进项目目录并提交；`.gitignore` 已默认排除它们以及 `.workbuddy/`、验证截图。
 
@@ -89,7 +93,9 @@ python -m http.server 8080
 
 ## 部署
 
-纯静态站点，可直接把整个目录传到 GitHub Pages、Netlify、Vercel 或任意静态托管，无需构建步骤。入口是 `index.html`，`vendor/` 目录需一并上传（直接下载 PDF 要用到）。
+已部署到 GitHub Pages：[https://intialf.github.io/resume-editor](https://intialf.github.io/resume-editor)。
+
+这是个纯静态站点，也可以自行部署到 GitHub Pages、Netlify、Vercel 或任意静态托管，无需构建步骤。入口是 `index.html`，`vendor/` 目录需一并上传（直接下载 PDF 要用到）。
 
 ## 常见问题
 
@@ -103,4 +109,6 @@ python -m http.server 8080
 
 ## 许可
 
-本项目代码供自行使用与修改；如需开放授权，请在仓库设置中另行选择开源许可证。`vendor/` 中的第三方库分别遵循 MIT 许可，版权头已保留在原文件中。
+本项目基于 [MIT 许可证](LICENSE) 发布，你可以自由使用、复制、修改、合并、发布、分发及再许可，只需保留版权与许可声明。
+
+`vendor/` 目录中的 html2canvas 1.4.1 与 jsPDF 2.5.1 均为 MIT 许可，版权声明已保留在各自的源文件中。
