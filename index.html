@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>简历编辑器 · 实时预览 / 一键导出 PDF</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ============ 顶部栏 ============ -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/><path d="M9 12h7M9 16h7M9 8h2"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <strong>简历编辑器</strong>
+        <span>实时预览 · A4 精确分页</span>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <span class="save-state" id="saveState" title="内容自动保存在本机浏览器"><i></i>已自动保存</span>
+      <div class="dropdown" id="dataMenu">
+        <button class="btn btn-ghost" data-dropdown="dataMenuPanel">数据 <span class="chev">▾</span></button>
+        <div class="dropdown-panel" id="dataMenuPanel">
+          <button data-action="export-json">导出简历数据 (.json)</button>
+          <button data-action="import-json">导入简历数据</button>
+          <div class="dropdown-sep"></div>
+          <button data-action="load-demo">载入示例简历</button>
+          <button data-action="clear-all" class="danger">清空全部内容</button>
+        </div>
+      </div>
+      <button class="btn btn-ghost" id="helpBtn" title="使用说明">帮助</button>
+      <!-- 小屏专用：把数据 / 帮助等次要动作收进「更多」 -->
+      <div class="dropdown mobile-dropdown">
+        <button class="btn btn-ghost" data-dropdown="mobileMorePanel" aria-label="更多操作" title="更多操作">⋯</button>
+        <div class="dropdown-panel align-right" id="mobileMorePanel">
+          <button data-action="export-json">导出简历数据 (.json)</button>
+          <button data-action="import-json">导入简历数据</button>
+          <div class="dropdown-sep"></div>
+          <button data-action="load-demo">载入示例简历</button>
+          <button data-action="clear-all" class="danger">清空全部内容</button>
+          <div class="dropdown-sep"></div>
+          <button data-action="help">使用说明</button>
+        </div>
+      </div>
+      <div class="dropdown" id="exportMenu">
+        <div class="export-group">
+          <button class="btn btn-primary" id="exportMain" title="打开打印窗口，在目标打印机中选择「另存为 PDF」">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v3h16v-3"/></svg>
+            <span class="label-full">一键导出 PDF</span><span class="label-short">导出</span>
+          </button>
+          <button class="btn btn-primary export-arrow" data-dropdown="exportMenuPanel" title="更多导出方式">▾</button>
+        </div>
+        <div class="dropdown-panel align-right wide" id="exportMenuPanel">
+          <button data-action="export-print" class="export-option">
+            <span class="opt-icon">◧</span>
+            <span><strong>打印 / 另存为 PDF</strong><em>推荐 · 文字清晰可选中、分页精确、离线可用</em></span>
+          </button>
+          <button data-action="export-download" class="export-option">
+            <span class="opt-icon">⇩</span>
+            <span><strong>直接下载 PDF 文件</strong><em>一键生成 .pdf，渲染组件已内置，离线可用</em></span>
+          </button>
+          <div class="dropdown-sep"></div>
+          <button data-action="export-help">导出设置与注意事项</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 移动端切换 -->
+  <div class="mobile-tabs">
+    <button class="active" data-view="edit">编辑</button>
+    <button data-view="preview">预览</button>
+  </div>
+
+  <!-- ============ 工作区 ============ -->
+  <main class="workspace">
+
+    <!-- ---------- 左侧：编辑 ---------- -->
+    <section class="editor-pane" id="editorPane">
+      <div class="pane-title">
+        <div>
+          <h2>编辑内容</h2>
+          <p>所有修改会立即同步到实时预览</p>
+        </div>
+        <button class="btn btn-soft btn-sm" id="toggleSettings">排版设置 <span class="chev">⌄</span></button>
+      </div>
+
+      <div class="editor-scroll" id="editorScroll">
+        <!-- 排版设置 -->
+        <div class="card settings-card" id="settingsCard" hidden>
+          <div class="card-head"><span class="card-title">排版设置</span></div>
+          <div class="card-body" id="settingsBody"></div>
+        </div>
+
+        <!-- 基本信息 -->
+        <div class="card basics-card">
+          <div class="card-head">
+            <span class="card-title"><span class="dot"></span>基本信息</span>
+            <span class="card-hint">简历头部</span>
+          </div>
+          <div class="card-body" id="basicsBody"></div>
+        </div>
+
+        <!-- 动态模块 -->
+        <div id="sectionsRoot"></div>
+
+        <button class="add-section-btn" id="addSectionBtn">
+          <span class="plus">+</span> 添加模块
+        </button>
+        <div class="add-section-menu" id="addSectionMenu" hidden></div>
+
+        <p class="editor-footnote">提示：拖拽卡片左上角的手柄可调整模块与条目顺序；每个模块可单独隐藏或删除。<span class="mobile-only">手机上请使用 ↑ / ↓ 按钮调整顺序。</span></p>
+      </div>
+    </section>
+
+    <!-- ---------- 右侧：预览 ---------- -->
+    <section class="preview-pane" id="previewPane">
+      <div class="preview-toolbar">
+        <div class="preview-label">
+          <span class="live-dot"></span> 实时预览
+          <span class="page-counter" id="pageCounter">1 页</span>
+        </div>
+        <div class="zoom-controls">
+          <button class="btn btn-soft btn-sm mobile-only" id="readModeBtn" title="按原始大小查看，可左右滑动">放大阅读</button>
+          <button class="icon-btn" id="zoomOut" title="缩小">−</button>
+          <span id="zoomLabel">适应宽度</span>
+          <button class="icon-btn" id="zoomIn" title="放大">+</button>
+          <button class="icon-btn" id="zoomFit" title="适应宽度">⤢</button>
+        </div>
+      </div>
+      <div class="preview-tip mobile-only">整页预览 · 点「放大阅读」可按原始大小查看细节</div>
+      <div class="preview-scroll" id="previewScroll">
+        <div class="paper-stage" id="paperStage"></div>
+      </div>
+      <div class="preview-footnote">A4 210 × 297 mm · 虚线外为页边距，打印时不会显示</div>
+    </section>
+  </main>
+</div>
+
+<!-- 离屏测量容器：用于精确分页 -->
+<div class="measure-host" id="measureHost" aria-hidden="true"></div>
+
+<!-- 文件选择 -->
+<input type="file" id="fileInput" accept="application/json,.json" hidden>
+
+<!-- 提示条 -->
+<div class="toast" id="toast" hidden></div>
+
+<!-- 模态框 -->
+<div class="modal-backdrop" id="modalBackdrop" hidden>
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head"><strong id="modalTitle"></strong><button class="icon-btn" id="modalClose">×</button></div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- 打印前的说明浮层 -->
+<div class="print-hint" id="printHint" hidden>
+  <div class="print-hint-inner">
+    <strong>导出 PDF 设置</strong>
+    <p>主按钮会直接打开系统打印窗口，请在「目标打印机」中选择「<b>另存为 PDF</b>」。<br>建议：边距设为「无」、缩放 100%、勾选「背景图形」；纸张由页面自动指定为 A4。</p>
+    <div style="display:flex;gap:8px;justify-content:center">
+      <button class="btn btn-ghost" data-action="print-hint-close">关闭</button>
+      <button class="btn btn-primary" id="printHintClose">开始打印</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
