@@ -2,8 +2,6 @@
 
 一个纯前端、零构建的网页简历编辑器：可视化填写、实时 A4 预览、精确分页、一键导出 PDF。所有数据只保存在你自己的浏览器里，不上传服务器。
 
-> **在线体验**：[https://intialf.github.io/resume-editor](https://intialf.github.io/resume-editor) —— 无需安装，打开即可使用。
-
 ## 功能
 
 - **可视化编辑**：基本信息、工作经历、项目经历、教育经历、专业技能、荣誉奖项、自定义模块。
@@ -93,9 +91,7 @@ python -m http.server 8080
 
 ## 部署
 
-已部署到 GitHub Pages：[https://intialf.github.io/resume-editor](https://intialf.github.io/resume-editor)。
-
-这是个纯静态站点，也可以自行部署到 GitHub Pages、Netlify、Vercel 或任意静态托管，无需构建步骤。入口是 `index.html`，`vendor/` 目录需一并上传（直接下载 PDF 要用到）。
+这是个纯静态站点，可以部署到 GitHub Pages、Netlify、Vercel 或任意静态托管，无需构建步骤。入口是 `index.html`，`vendor/` 目录需一并上传（直接下载 PDF 要用到）。
 
 ## 常见问题
 
